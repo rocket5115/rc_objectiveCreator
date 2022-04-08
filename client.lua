@@ -11,6 +11,14 @@ AddEventHandler('rc_co:startCO', function(str)
     end
 end)
 
+AddEventHandler('rc_co:inj', function(tab) -- I've added it in github, might work or not, who knows!
+    if tab then
+        local p = CreateOC(tab)
+        Citizen.Wait(100)
+        ConvertOC(p)
+     end
+end)
+
 local data = { -- sample of what this script is supposed to do, you have ['name'] which is type of function 
     {
         ['name'] = 'createnpc',
