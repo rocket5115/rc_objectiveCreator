@@ -16,180 +16,41 @@ AddEventHandler('rc_co:startCO', function(str)
     end
 end)
 
-local data = {
-    {
-        ['name'] = 'createnpc',
-        's_m_y_airworker',
-        -183.7506,
-        -1079.427,
-        30.13943,
-        124.733,
-        true
-    },
-    {
-        ['name'] = 'createnpc',
-        's_m_m_dockwork_01',
-        -207.1754,
-        -1114.2286,
-        22.86851,
-        70.0974,
-        true
-    },
-    {
-        ['name'] = 'scenario',
-        'WORLD_HUMAN_SMOKING_POT',
-        true
-    },
-    {
-        ['name'] = 'marker',
-        22,
-        -207.1754,
-        -1114.2286,
-        22.86851,
-        0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0,
-        250, 0, 0, 0,
-        false, true, false, false,
-        true, 46
-    },
-    {
-        ['name'] = 'ignore'
-    },
-    {
-        ['name'] = 'text',
-        'Hey there! You\'re late again! Talk with Bob he has a job for you.',
-        4000
-    },
-    {
-        ['name'] = 'delay',
-        4500
-    },
-    {
-        ['name'] = 'text',
-        'He is on the first floor up there.',
-        3000
-    },
-    {
-        ['name'] = 'delay',
-        3500
-    },
-    {
-        ['name'] = 'notification',
-        'You were given a task to complete!'
-    },
-    {
-        ['name'] = 'marker',
-        22,
-        -183.7506,
-        -1079.427,
-        30.13943,
-        0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0,
-        250, 0, 0, 0,
-        false, true, false, false,
-        true, 46
-    },
-    {
-        ['name'] = 'ignore'
-    },
-    {
-        ['name'] = 'text',
-        "Finally! You are here. Take these papers and bring them to Mike.",
-        4500
-    },
-    {
-        ['name'] = 'delay',
-        4500
-    },
-    {
-        ['name'] = 'text',
-        'What are you waiting for? He is on the top of the construction site.',
-        3500
-    },
-    {
-        ['name'] = 'delay',
-        3500
-    },
-    {
-        ['name'] = 'notification',
-        'Go to the top! And give Mike some notes!'
-    }
-}
-
 function CreateOC(tab)
     local returnval = "{"
 
     for i=1, #tab, 1 do
-        if tab[i]['name'] == 'goto' then
-            returnval = returnval .. 'gt:' .. tab[i][1] .. ',' .. tab[i][2] .. ',' .. tab[i][3]
-            if tab[i][4] == true then
-                returnval = returnval .. ',t'
+        if globalValues[tab[i]['name']] then
+            returnval = returnval .. values[tab[i]['name']]
+            local it = (type(globalValues[tab[i]['name']]) ~= 'string')
+            local treter
+            if it then
+                treter = globalValues[tab[i]['name']]
             else
-                returnval = returnval .. ',f'
+                treter = #tab[i]
             end
-            if tab[i][5] == true then
-                returnval = returnval .. ',t'
-            else
-                returnval = returnval .. ',f'
-            end
-        end
-        if tab[i]['name'] == 'ignore' then
-            returnval = returnval .. 'cnt:'
-        end
-        if tab[i]['name'] == 'notification' then
-            returnval = returnval .. 'inf:' .. tab[i][1]
-        end
-        if tab[i]['name'] == 'createnpc' then
-            returnval = returnval .. 'cnpc:' .. tab[i][1] .. ',' .. tab[i][2] .. ',' .. tab[i][3] .. ',' .. tab[i][4] .. ',' .. tab[i][5]
-            if tab[i][6] == true then
-                returnval = returnval .. ',t'
-            else
-                returnval = returnval .. ',f'
-            end
-        end
-        if tab[i]['name'] == 'loadnpc' then
-            if tab[i][1] then
-                returnval = returnval .. 'lnpc:' .. tab[i][1]
-            else
-                returnval = returnval .. 'lnpc:'
-            end
-        end
-        if tab[i]['name'] == 'playanim' then
-            returnval = returnval .. 'anim:' .. tab[i][1] .. ',' .. tab[i][2]
-            if tab[i][3] then
-                returnval = returnval .. ',' .. tab[i][3]
-            end
-        end
-        if tab[i]['name'] == 'scenario' then
-            returnval = returnval .. 'scen:' .. tab[i][1]
-            if tab[i][2] == true then
-                returnval = returnval .. ',t'
-            else
-                returnval = returnval .. ',f'
-            end
-        end
-        if tab[i]['name'] == 'delay' then
-            returnval = returnval .. 'del:' .. tab[i][1]
-        end
-        if tab[i]['name'] == 'text' then
-            returnval = returnval .. 'text:' .. tab[i][1] .. ',' .. tab[i][2]
-        end
-        if tab[i]['name'] == 'marker' then
-            returnval = returnval .. 'mark:'
-            for j=1, #tab[i], 1 do
-                if type(tab[i][j]) == 'boolean' then
-                    if tab[i][j] == true then
-                        returnval = returnval .. ',t'
+
+            for j=1, treter, 1 do
+                local typ = tab[i][j]
+                if j ~= globalValues[tab[i]['name']] then
+                    if type(typ) == 'boolean' then
+                        if typ == true then
+                            returnval = returnval .. 't,'
+                        else
+                            returnval = returnval .. 'f,'
+                        end
                     else
-                        returnval = returnval .. ',f'
+                        returnval = returnval .. typ .. ','
                     end
-                else
-                    if j ~= 1 then
-                        returnval = returnval .. ',' .. tab[i][j]
+                elseif j == globalValues[tab[i]['name']] and typ then
+                    if type(typ) == 'boolean' then
+                        if typ == true then
+                            returnval = returnval .. 't'
+                        else
+                            returnval = returnval .. 'f'
+                        end
                     else
-                        returnval = returnval .. tab[i][j]
+                        returnval = returnval .. typ
                     end
                 end
             end
@@ -197,26 +58,12 @@ function CreateOC(tab)
         if i == #tab then
             returnval = returnval .. '}'
         else
-            returnval = returnval .. ';' 
+            returnval = returnval .. ';'
         end
     end
 
     return returnval
 end
-local funcs = {'inf:', 'gt:', 'cnt:', 'cnpc:', 'lnpc:', 'anim:', 'scen:', 'del:', 'text:', 'mark:'}
-
-local functions = {
-    ['inf'] = 'information',
-    ['cnt'] = 'WaitTillEnd',
-    ['gt'] = 'GoTo',
-    ['cnpc'] = 'CreateNPC',
-    ['lnpc'] = 'LoadNPC',
-    ['anim'] = 'PlayAnim',
-    ['scen'] = 'Scenario',
-    ['del'] = 'Delay',
-    ['text'] = 'MissionText',
-    ['mark'] = 'Marker',
-}
 
 function ConvertOC(oc)
     if string.sub(oc, 1, 1) ~= '{' then
@@ -289,17 +136,7 @@ function ConvertOC(oc)
         if c then
             if d(c, 'information') then
                 table.insert(ret, function(cb, check)
-                    if not check then 
-                        local str = data[i].strings
-                        TriggerEvent('chat:addMessage', {
-                            color = { 255, 0, 0},
-                            multiline = true,
-                            args = {"Quest", str}
-                        })
-                        cb('event', true)
-                    else
-                        cb('event', true)
-                    end
+                    GreaterReadability['information'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'WaitTillEnd') then
@@ -309,169 +146,27 @@ function ConvertOC(oc)
             end
             if d(c, 'GoTo') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, tonumber(string.sub(data[i].strings, 1, vars[j]-1)))
-                            end
-                            if j > 1 and j <= 3 then
-                                table.insert(returnval, tonumber(string.sub(data[i].strings, vars[j-1]+1, vars[j]-1)))
-                            end
-                            if j == 4 or j == 5 then
-                                if string.sub(data[i].strings, vars[j]+1, vars[j]+1) == 't' then
-                                    table.insert(returnval, true)
-                                else
-                                    table.insert(returnval, false)
-                                end
-                            end
-                        end
-                        cb('goto', returnval)
-                    else
-                        cb('goto', true)
-                    end
+                    GreaterReadability['GoTo'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'CreateNPC') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, tostring(string.sub(data[i].strings, 1, vars[j]-1)))
-                            end
-                            if j > 1 and j <= 5 then
-                                table.insert(returnval, tonumber(string.sub(data[i].strings, vars[j-1]+1, vars[j]-1)))
-                            end
-                            if j == 6 then
-                                if string.sub(data[i].strings, vars[j]+1, vars[j]+1) == 't' then
-                                    table.insert(returnval, true)
-                                else
-                                    table.insert(returnval, false)
-                                end
-                            end
-                        end
-
-                        cb('createnpc', returnval)
-                    else
-                        cb('createnpc', true)
-                    end
+                    GreaterReadability['CreateNPC'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'LoadNPC') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local str = data[i].strings
-                        if str ~= nil and str ~= '' then
-                            if tonumber(str) then
-                                cb('loadnpc', tonumber(str))
-                            else
-                                cb('loadnpc', str)
-                            end
-                        else
-                            cb('loadnpc')
-                        end
-                    else
-                        cb('loadnpc', true)
-                    end
+                    GreaterReadability['LoadNPC'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'PlayAnim') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, string.sub(data[i].strings, 1, vars[j]-1))
-                            end
-                            if j == 2 then
-                                table.insert(returnval, string.sub(data[i].strings, vars[j-1]+1, string.len(data[i].strings)))
-                            end
-                            if j == 3 then
-                                table.insert(returnval, string.sub(data[i].strings, vars[j]+1, string.len(data[i].strings)))
-                            end
-                        end    
-                        
-                        cb('playanim', returnval)
-                    else
-                        cb('playanim', true)
-                    end
+                    GreaterReadability['PlayAnim'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'Scenario') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, string.sub(data[i].strings, 1, vars[j]-1))
-                            end
-                            if j == 2 and #vars == 2 then
-                                if string.sub(data[i].strings, vars[j]+1, string.len(data[i].strings)) == 't' then
-                                    table.insert(returnval, true)
-                                else
-                                    table.insert(returnval, false)
-                                end
-                            else
-                                if string.sub(data[i].strings, vars[j]+1, vars[j+1]-1) == 't' then
-                                    table.insert(returnval, true)
-                                else
-                                    table.insert(returnval, false)
-                                end
-                            end
-                            if j == 3 then
-                                if tonumber(string.sub(data[i].strings, vars[j]+1, string.len(data[i].strings))) then
-                                    table.insert(returnval, tonumber(string.sub(data[i].strings, vars[j]+1, string.len(data[i].strings))))
-                                else
-                                    table.insert(string.sub(data[i].strings, vars[j]+1, string.len(data[i].strings)))
-                                end
-                            end
-                        end    
-                        
-                        cb('scenario', returnval)
-                    else
-                        cb('scenario', true)
-                    end
+                    GreaterReadability['Scenario'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'Delay') then
@@ -485,84 +180,12 @@ function ConvertOC(oc)
             end
             if d(c, 'MissionText') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, string.sub(data[i].strings, 1, vars[j]-1))
-                            end
-                            if j == 2 then
-                                table.insert(returnval, tonumber(string.sub(data[i].strings, vars[j-1]+1, string.len(data[i].strings))))
-                            end
-                        end
-
-                        cb('missiontext', returnval)
-                    else
-                        cb('misiontext', true)
-                    end
+                    GreaterReadability['MissionText'](cb, check, data[i].strings)
                 end)
             end
             if d(c, 'Marker') then
                 table.insert(ret, function(cb, check)
-                    if not check then
-                        local returnval = {}
-                        local vars = {}
-
-                        for j=1, string.len(data[i].strings), 1 do
-                            if string.sub(data[i].strings, j, j) == ',' then
-                                table.insert(vars, j)
-                            end
-                        end
-
-                        table.insert(vars, string.len(data[i].strings)-1)
-
-                        for j=1, #vars, 1 do
-                            if j == 1 then
-                                table.insert(returnval, tonumber(string.sub(data[i].strings, 1, vars[j]-1)))
-                            end
-                            if j > 1 and j <= #vars-1 then
-                                local p = string.sub(data[i].strings, vars[j-1]+1, vars[j]-1)
-                                if tonumber(p) then
-                                    table.insert(returnval, tonumber(p))
-                                end
-                                if p == 't' then
-                                    table.insert(returnval, true)
-                                end
-                                if p == 'f' then
-                                    table.insert(returnval, false)
-                                end
-                                if not tonumber(p) and p ~= 't' and p ~= 'f' then
-                                    table.insert(returnval, p)
-                                end
-                            end
-                            if j == #vars then
-                                local p = string.sub(data[i].strings, vars[j-1]+1, string.len(data[i].strings))
-                                if tonumber(p) then
-                                    table.insert(returnval, tonumber(p))
-                                end
-                                if p == 't' then
-                                    table.insert(returnval, true)
-                                end
-                                if p == 'f' then
-                                    table.insert(returnval, false)
-                                end
-                            end
-                        end
-
-                        cb('marker', returnval)
-                    else
-                        cb('marker', true)
-                    end
+                    GreaterReadability['Marker'](cb, check, data[i].strings)
                 end)
             end
         end
@@ -731,4 +354,117 @@ Citizen.CreateThread(function()
             end
         end
     end
+end)
+
+local opened = false
+
+function OpenUI(isOn)
+    opened = isOn
+    SetNuiFocus(isOn, isOn)
+    SendNUIMessage({
+        type = 'ui',
+        status = isOn
+    })
+end
+
+RegisterNUICallback('exit', function(data, cb)
+    OpenUI(not opened)
+end)
+
+local currentSession = {}
+local await = false
+
+RegisterNUICallback('elementSelected', function(data, cb)
+    if globalValues[data.elementChosen] then
+        if globalValues[data.elementChosen] >= #data.data then
+            if data.elementChosen == 'marker' or data.elementChosen == 'goto' then
+                await = true
+            end
+            if data.elementChosen == 'ignore' then
+                if await then
+                    currentSession[#currentSession+1] = {}
+                    currentSession[#currentSession] = data.data
+                    currentSession[#currentSession]['name'] = data.elementChosen
+                else
+                    TriggerEvent('chat:addMessage', {
+                        color = {255, 0, 0},
+                        multiline = true,
+                        args = {'QuestCreator', 'Await not in correct place!'}
+                    })
+                end
+            else
+                currentSession[#currentSession+1] = {}
+                currentSession[#currentSession] = data.data
+                currentSession[#currentSession]['name'] = data.elementChosen
+            end
+        end
+    end
+end)
+
+Citizen.CreateThread(function()
+    local data = {}
+    for i=1, #NUIValues, 1 do
+        data[i] = {}
+        for j=1, #NUIValues[i], 1 do
+            data[i][j] = type(NUIValues[i][j])
+        end
+    end
+
+    Citizen.Wait(500)
+
+    SendNUIMessage({
+        type = 'initialize',
+        data = data 
+    })
+end)
+
+RegisterNUICallback('exportCO', function(data, cb)
+    if #currentSession > 0 then
+        local returnval = CreateOC(currentSession)
+        if returnval then
+            print('Exported current session to your clipboard!')
+            SendNUIMessage({
+                type = 'copy',
+                fp = true,
+                sp = true,
+                data = returnval
+            })
+        end
+    end
+end)
+
+local LastSession = {}
+local Lastawait = false
+
+RegisterNUICallback('clearOC', function(data, cb)
+    print('Cleared Current Session!')
+    LastSession = currentSession
+    Lastawait = await
+    currentSession = nil
+    currentSession = {}
+    await = false
+end)
+
+RegisterNUICallback('recoverOC', function(data, cb)
+    if LastSession[1] then
+        currentSession = LastSession
+        await = Lastawait
+        print('Recovered Last Session!')
+    else
+        print('No session to be recovered!')
+    end
+end)
+
+RegisterNUICallback('executeOC', function(data, cb)
+    if currentSession[1] then
+        local returnval = CreateOC(currentSession)
+        if returnval then
+            ConvertOC(returnval)
+            print('Succesfully executed OC!')
+        end
+    end
+end)
+
+RegisterCommand('openOC', function(source,args)
+    OpenUI(not opened)
 end)
