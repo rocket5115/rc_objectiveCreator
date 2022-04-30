@@ -1,0 +1,184 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="reset.css" type="text/css">
+        <link rel="stylesheet" href="main.css" type="text/css">
+        <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+	</head>
+	<body>
+        <container id="storage">
+            <div id="header">objectiveCreator</div>
+            <div id="header-inputs">Current Inputs</div>
+        </container>
+        <container id="container">
+            <form id="form">
+                <div class="standard" onclick="ClickedSideBar(this)" data="notification">Create Notification</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="text">Create Mission Text</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="marker">Create Marker</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="createnpc">Create NPC</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="playanim">Add Animation</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="scenario">Add Scenario</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="loadnpc">Load NPC</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="goto">Go To Point</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="ignore">Add Await</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="delay">Add Delay</div>
+                <div id="export" onclick="ExportProject(this)">Export Project</div>
+                <div id="clear" onclick="ClearProject(this)">Clear Project</div>
+                <div id="execute" onclick="ExecuteProject(this)">Execute Project</div>
+                <div id="recoverLastSession" onclick="RecoverLastSession(this)">Recover Last Session</div>
+            </form>
+        </container>
+        <container id="inputs">
+            <form id="formAdd">
+                <div id="finish" onclick="Finish(this)">Finish</div>
+            </form>
+        </container>
+        <script src="./index.js" type="text/javascript"></script>
+        <script>
+            var values = [];
+            var initialized = false;
+            function display(bool) {
+                if (bool) {
+                    $('#inputs').show();
+                    $('#container').show();
+                    $('#storage').show();
+                    $('#header-inputs').text('Current Inputs');
+                } else {
+                    $('#inputs').hide();
+                    $('#container').hide();
+                    $('#storage').hide();
+                    $('#formAdd').hide();
+                }
+            }
+            display(false)
+            window.addEventListener('message', function(event) {
+                var item = event.data;
+                if (item.type === "ui" && initialized) {
+                    if (item.status === true) {
+                        display(true);
+                    } else {
+                        display(false);
+                    };
+                } else if (item.type === "initialize") {
+                    values = item.data;
+                    initialized = true;
+                } else if (item.type === "copy") {
+                    if (item.fp && item.sp) {
+                        CopyText(item.data);
+                    };
+                };
+            })
+
+            function CopyText(text) {
+                var copy = $('<textarea/>');
+                copy.text(text);
+                $('body').append(copy);
+                copy.select();
+                document.execCommand('copy');
+                copy.remove();
+            };
+
+            $(document).ready(function() {
+                let i=0;
+                for(i;i<30;i++) {
+                    let idf = i+'form'
+                    $('#formAdd').append(
+                        $('<input >').attr({id: idf, placeholder:'test', type: 'text'})
+                    );
+                };
+            });
+            document.onkeyup = function (data) {
+                if (data.which == 27) {
+                    $.post('https://rc_objectiveCreator/exit', JSON.stringify({}));
+                    return
+                }
+            };
+            var currentType = "";
+
+            var dataTypes = [];
+            dataTypes['notification'] = 1;
+            dataTypes['text'] = 2;
+            dataTypes['marker'] = 23;
+            dataTypes['createnpc'] = 7;
+            dataTypes['playanim'] = 3;
+            dataTypes['scenario'] = 3;
+            dataTypes['loadnpc'] = 1;
+            dataTypes['goto'] = 3;
+            dataTypes['ignore'] = 0;
+            dataTypes['delay'] = 1;
+
+            var ButtonTypes = [];
+            ButtonTypes['notification'] = 0;
+            ButtonTypes['text'] = 1;
+            ButtonTypes['marker'] = 2;
+            ButtonTypes['createnpc'] = 3;
+            ButtonTypes['playanim'] = 4;
+            ButtonTypes['scenario'] = 5;
+            ButtonTypes['loadnpc'] = 6;
+            ButtonTypes['goto'] = 7;
+            ButtonTypes['ignore'] = 8;
+            ButtonTypes['delay'] = 9;
+
+            function ClickedSideBar(element) {
+                let val = element.getAttribute('data');
+                if(dataTypes[val] >= 0) {
+                    let j = 0;
+                    let i = 0;
+                    currentType = val;
+                    $('#formAdd').show();
+                    if(dataTypes[val] != 0) {
+                        $('#header-inputs').text('Current Inputs: ' + val)
+                        for(i;i<30;i++) {
+                            $('#'+i+'form').css({'display':'none'})
+                        };
+                        for(j;j<dataTypes[val];j++) {
+                            $('#'+j+'form').css({'display':'block'})
+                            $('#'+j+'form').attr({'placeholder':values[ButtonTypes[val]][j]});
+                        };
+                    } else {
+                        $('#header-inputs').text('Current Inputs: ' + val)
+                        for(i;i<30;i++) {
+                            $('#'+i+'form').css({'display':'none'})
+                        };
+                    };
+                } else {
+                    console.log('Wrong type of function chosen! ' + val);
+                };
+            };
+
+            function Finish(element) {
+                let ogn = dataTypes[currentType]
+                let i=0;
+                let data = [];
+                for(i;i<ogn;i++) {
+                    let el = $('#'+i+'form').val();
+                    if(el=='' || !el) {
+                        console.log('Missing data at position ' + (i+1));
+                        return;
+                    } else {
+                        data[i] = el;
+                    };
+                };
+                $.post('https://rc_objectiveCreator/elementSelected', JSON.stringify({
+                    elementChosen: currentType,
+                    data: data
+                }));
+            };
+
+            function ExportProject(element) {
+                $.post('https://rc_objectiveCreator/exportCO', JSON.stringify({}));
+            };
+
+            function ClearProject(element) {
+                $.post('https://rc_objectiveCreator/clearOC', JSON.stringify({}));
+            };
+
+            function ExecuteProject(element) {
+                $.post('https://rc_objectiveCreator/executeOC', JSON.stringify({}));
+            };
+
+            function RecoverLastSession(element) {
+                $.post('https://rc_objectiveCreator/recoverOC', JSON.stringify({}))
+            };
+        </script>
+    </body>
+</html>
