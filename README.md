@@ -7,7 +7,13 @@ This is not a final version! It will remain in this state for some time since I 
 
 Things that are +/- working:
 
--gt: = go to(1p, 2p, 3p, 4p) = int, int, int, bool
--cnt: = continue(0p) after previous statement has been finished(only gt will work with this for now)
--inf: = information(1p) = str, displays in chat, simple TriggerEvent with chat message, change it in source if you want
--cnpc: = Create NPC(1p, 2p, 3p, 4p, 5p, 6p) = model[str], int, int, int, int, bool, creates npc
+notification - p1 - str
+text - p1, p2 - str, int
+marker - up to 23p, all from docs except for material and p19, additionally: onButton(bool), Button(int)
+createnpc - p1, p2, p3, p4, p5, p6, p7 - str, int, int, int, int, bool, str
+playanim - p1, p2, p3 - str, str, str
+scenario - p1, p2, p3 - str, str, str
+loadnpc - p1 - str
+goto - p1, p2, p3 - int, int, int
+ignore(await) - p0 - goto or marker
+delay(wait) - p1 - int
