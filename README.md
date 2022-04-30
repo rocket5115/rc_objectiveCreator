@@ -5,6 +5,8 @@ This is a more or less simple script that lets you create some basic objectives,
 !IMPORTANT!
 This is not a final version! It will remain in this state for some time since I will need time to get it to work perfectly. This is just an inside look of what it might look like in future with all the parts fully released. If you have any ideas as to what you want to see in something like that, be sure to dm me on FiveM Forum or Pull Request or create Issue!
 
+![image](https://user-images.githubusercontent.com/65498427/166116814-f8023a9e-7839-41ff-98a2-eb0dc87ab485.png)
+
 Things that are +/- working:
 
 notification - p1 - str
