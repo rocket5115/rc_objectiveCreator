@@ -1,4 +1,4 @@
-local Peds = {}
+Peds = {}
 local LastPed = nil
 local Markers = {}
 local ButtonPressedOnMarker = nil
@@ -15,6 +15,20 @@ AddEventHandler('rc_co:startCO', function(str)
         ConvertOC(str)
     end
 end)
+
+function tobool(input)
+    if type(input) == 'string' then
+        if input == 'true' then
+            return true
+        else
+            return false
+        end
+    elseif type(input) == 'boolean' then
+        return input
+    else
+        return false
+    end
+end
 
 function CreateOC(tab)
     local returnval = "{"
@@ -134,6 +148,16 @@ function ConvertOC(oc)
         local c = functions[data[i].type]
         local d = string.find
         if c then
+            if d(c, 'ExportEnt') then
+                table.insert(ret, function(cb, check)
+                    GreaterReadability['ExportEnt'](cb, check, data[i].strings)
+                end)
+            end
+            if d(c, 'Event') then
+                table.insert(ret, function(cb, check)
+                    GreaterReadability['Event'](cb, check, data[i].strings)
+                end)
+            end
             if d(c, 'information') then
                 table.insert(ret, function(cb, check)
                     GreaterReadability['information'](cb, check, data[i].strings)
@@ -206,6 +230,10 @@ function ConvertOC(oc)
                 ret[LastAwaitExecuted](function(p)
                     if p == 'goto' then
                         ret[LastAwaitExecuted](function(name2, data)
+                            data[1] = tonumber(data[1])
+                            data[2] = tonumber(data[2])
+                            data[3] = tonumber(data[3])
+                            data[4] = tobool(data[4])
                             if data[4] then
                                 SetNewWaypoint(data[1], data[2])
                             end
@@ -219,6 +247,9 @@ function ConvertOC(oc)
                         end)
                     elseif p == 'marker' then
                         ret[LastAwaitExecuted](function(name2, data2)
+                            data[2] = tonumber(data[2])
+                            data[3] = tonumber(data[3])
+                            data[4] = tonumber(data[4])
                             while true do
                                 local c = vector3(data2[2], data2[3], data2[4])
                                 Citizen.Wait(200)
@@ -230,6 +261,13 @@ function ConvertOC(oc)
                     end
                 end, true)
             elseif name == 'createnpc' then
+                data[1] = tostring(data[1])
+                data[2] = tonumber(data[2])
+                data[3] = tonumber(data[3])
+                data[4] = tonumber(data[4])
+                data[5] = tonumber(data[5])
+                data[6] = tobool(data[6])
+                data[7] = tostring(data[7])
                 local hash = GetHashKey(data[1])
                 RequestModel(hash)
                 while not HasModelLoaded(hash) do
@@ -279,6 +317,8 @@ function ConvertOC(oc)
             elseif name == 'delay' then
                 Citizen.Wait(data)
             elseif name == 'missiontext' then
+                data[1] = tostring(data[1])
+                data[2] = tonumber(data[2])
                 MT(data[1], data[2])
             elseif name == 'marker' then
                 table.insert(Markers, {
@@ -316,6 +356,29 @@ function ConvertOC(oc)
                         Button = data[23]
                     }
                 })
+            elseif name == 'GEvent' then
+                ret[i](function(nam, data2)
+                    local nam, dat = nil, {}
+                    local LastI = 1
+                    local typ = 1
+                    for i=1, string.len(data2), 1 do
+                        if string.sub(data2, i, i) == ',' then
+                            if typ == 1 then
+                                typ = 2
+                                nam = string.sub(data2, LastI, i-1)
+                                LastI = i+1
+                            else
+                                table.insert(dat, string.sub(data2, LastI, i-1))
+                                LastI = i+1
+                            end
+                        end
+                    end
+                    TriggerEvent(nam, table.unpack(dat))
+                end)
+            elseif name == 'export' then
+                ret[i](function(nam, data2, data3) 
+                    TriggerEvent(data2, Peds[data3])
+                end)
             end
         end)
     end
@@ -376,7 +439,8 @@ local await = false
 
 RegisterNUICallback('elementSelected', function(data, cb)
     if globalValues[data.elementChosen] then
-        if globalValues[data.elementChosen] >= #data.data then
+        if (tostring(globalValues[data.elementChosen]) == 'custom') or (type(globalValues[data.elementChosen]) == 'number' and globalValues[data.elementChosen] <= #data.data) then
+            print('Added Element to Sequence! ' .. data.elementChosen)
             if data.elementChosen == 'marker' or data.elementChosen == 'goto' then
                 await = true
             end
@@ -406,7 +470,11 @@ Citizen.CreateThread(function()
     for i=1, #NUIValues, 1 do
         data[i] = {}
         for j=1, #NUIValues[i], 1 do
-            data[i][j] = type(NUIValues[i][j])
+            if type(NUIValues[i][j]) == 'table' then
+                data[i][j] = 'any'
+            else
+                data[i][j] = type(NUIValues[i][j])
+            end
         end
     end
 
@@ -459,8 +527,11 @@ RegisterNUICallback('executeOC', function(data, cb)
     if currentSession[1] then
         local returnval = CreateOC(currentSession)
         if returnval then
-            ConvertOC(returnval)
+            print(returnval)
             print('Succesfully executed OC!')
+            ConvertOC(returnval)
+        else
+            print('Error has been found while executing OC!')
         end
     end
 end)
