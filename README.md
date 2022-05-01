@@ -43,6 +43,6 @@ after that you need to choose any option that is currently on side bar. Then jus
 
 ||Recover Last Session|| Restores back Project you previously deleted. Doesn't work after script restart
 
-||Export Project|| pies OC to you clipboard. Save it in any file after that. You can execute it using 'rc_co:startCO' event
+||Export Project|| Copies OC to you clipboard. Save it in any file after that. You can execute it using 'rc_co:startCO' event
 
-||Execute Project||xecutes current project you are editing
+||Execute Project|| Executes current project you are editing
