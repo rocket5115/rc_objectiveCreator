@@ -33,16 +33,16 @@ event - p1 and from p2 to p14 - str, any(not counting nil and table or functions
 
 export - p1, p2 - str, str
 
-~MANUAL~
+!MANUAL!
 
 /openoc - opens up the UI
 
 after that you need to choose any option that is currently on side bar. Then just fill those spaces with types of arguments that it says, int, str, bool, any. According to FiveM docs and everything above.
 
-~Clear Project~ Deletes any info you had currently in table
+||Clear Project|| Deletes any info you had currently in table
 
-~Recover Last Session~ Restores back Project you previously deleted. Doesn't work after script restart
+||Recover Last Session|| Restores back Project you previously deleted. Doesn't work after script restart
 
-~Export Project~ Copies OC to you clipboard. Save it in any file after that. You can execute it using 'rc_co:startCO' event
+||Export Project|| pies OC to you clipboard. Save it in any file after that. You can execute it using 'rc_co:startCO' event
 
-~Execute Project~ Executes current project you are editing
+||Execute Project||xecutes current project you are editing
