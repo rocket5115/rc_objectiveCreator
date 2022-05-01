@@ -18,9 +18,11 @@
                 <div class="standard" onclick="ClickedSideBar(this)" data="playanim">Add Animation</div>
                 <div class="standard" onclick="ClickedSideBar(this)" data="scenario">Add Scenario</div>
                 <div class="standard" onclick="ClickedSideBar(this)" data="loadnpc">Load NPC</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="export">Export NPC</div>
                 <div class="standard" onclick="ClickedSideBar(this)" data="goto">Go To Point</div>
                 <div class="standard" onclick="ClickedSideBar(this)" data="ignore">Add Await</div>
                 <div class="standard" onclick="ClickedSideBar(this)" data="delay">Add Delay</div>
+                <div class="standard" onclick="ClickedSideBar(this)" data="event">Add Event</div>
                 <div id="export" onclick="ExportProject(this)">Export Project</div>
                 <div id="clear" onclick="ClearProject(this)">Clear Project</div>
                 <div id="execute" onclick="ExecuteProject(this)">Execute Project</div>
@@ -105,6 +107,8 @@
             dataTypes['goto'] = 3;
             dataTypes['ignore'] = 0;
             dataTypes['delay'] = 1;
+            dataTypes['event'] = 14;
+            dataTypes['export'] = 2;
 
             var ButtonTypes = [];
             ButtonTypes['notification'] = 0;
@@ -117,6 +121,8 @@
             ButtonTypes['goto'] = 7;
             ButtonTypes['ignore'] = 8;
             ButtonTypes['delay'] = 9;
+            ButtonTypes['event'] = 10;
+            ButtonTypes['export'] = 11;
 
             function ClickedSideBar(element) {
                 let val = element.getAttribute('data');
@@ -146,16 +152,27 @@
             };
 
             function Finish(element) {
-                let ogn = dataTypes[currentType]
+                let ogn = dataTypes[currentType];
                 let i=0;
                 let data = [];
-                for(i;i<ogn;i++) {
-                    let el = $('#'+i+'form').val();
-                    if(el=='' || !el) {
-                        console.log('Missing data at position ' + (i+1));
-                        return;
-                    } else {
-                        data[i] = el;
+                if(currentType != 'event') {
+                    for(i;i<ogn;i++) {
+                        let el = $('#'+i+'form').val();
+                        if(el=='' || !el) {
+                            console.log('Missing data at position ' + (i+1));
+                            return;
+                        } else {
+                            data[i] = el;
+                        };
+                    };
+                } else {
+                    for(i;i<ogn;i++) {
+                        let el = $('#'+i+'form').val();
+                        if(el=='' || !el) {
+                            break;
+                        } else {
+                            data[i] = el;
+                        };
                     };
                 };
                 $.post('https://rc_objectiveCreator/elementSelected', JSON.stringify({
