@@ -1,6 +1,6 @@
 globalValues = {
     ['goto'] = 5,
-    ['createnpc'] = 5,
+    ['createnpc'] = 7,
     ['ignore'] = 0,
     ['notification'] = 1,
     ['loadnpc'] = 1,
@@ -8,7 +8,9 @@ globalValues = {
     ['scenario'] = 3,
     ['delay'] = 1,
     ['text'] = 2,
-    ['marker'] = 'custom'
+    ['marker'] = 'custom',
+    ['event'] = 'custom',
+    ['export'] = 2
 }
 
 values = {
@@ -21,10 +23,12 @@ values = {
     ['scenario'] = 'scen:',
     ['delay'] = 'del:',
     ['text'] = 'text:',
-    ['marker'] = 'mark:'
+    ['marker'] = 'mark:',
+    ['event'] = 'ev:',
+    ['export'] = 'exe:'
 }
 
-funcs = {'inf:', 'gt:', 'cnt:', 'cnpc:', 'lnpc:', 'anim:', 'scen:', 'del:', 'text:', 'mark:'}
+funcs = {'inf:', 'gt:', 'cnt:', 'cnpc:', 'lnpc:', 'anim:', 'scen:', 'del:', 'text:', 'mark:', 'ev:', 'exe:'}
 
 functions = {
     ['inf'] = 'information',
@@ -37,9 +41,32 @@ functions = {
     ['del'] = 'Delay',
     ['text'] = 'MissionText',
     ['mark'] = 'Marker',
+    ['ev'] = 'Event',
+    ['exe'] = 'ExportEnt',
 }
 
 GreaterReadability = {
+    ['ExportEnt'] = function(cb, check, str)
+        if not check then
+            local name, data = nil, nil
+            for i=1, string.len(str), 1 do
+                if string.sub(str, i, i) == ',' then
+                    name = string.sub(str, 1, i-1)
+                    data = string.sub(str, i+1, string.len(str))
+                end
+            end
+            cb('export', name, data)
+        else
+            cb('export', true)
+        end
+    end,
+    ['Event'] = function(cb, check, name, ...)
+        if not check then
+            cb('GEvent', name, ...)
+        else
+            cb('GEvent', true)
+        end
+    end,
     ['information'] = function(cb, check, str)
         if not check then 
             TriggerEvent('chat:addMessage', {
@@ -106,11 +133,14 @@ GreaterReadability = {
                     table.insert(returnval, tonumber(string.sub(str, vars[j-1]+1, vars[j]-1)))
                 end
                 if j == 6 then
-                    if string.sub(str, vars[j]+1, vars[j]+1) == 't' then
+                    if string.sub(str, vars[j]+1, vars[j+1]-1) == 't' then
                         table.insert(returnval, true)
                     else
                         table.insert(returnval, false)
                     end
+                end
+                if j == 7 then
+                    table.insert(returnval, string.sub(str, vars[j-1]+1, string.len(str)))
                 end
             end
 
@@ -318,5 +348,11 @@ NUIValues = {
     },
     [10] = {
         0
+    },
+    [11] = {
+        '', {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+    },
+    [12] = {
+        '', ''
     }
 }
