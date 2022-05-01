@@ -37,7 +37,7 @@ export - p1, p2 - str, str
 
 /openoc - opens up the UI
 
-after that you need to choose any option that is currently on side bar. Then just fill those spaces with types of arguments that it says, int, str, bool, any. According to FiveM docs and everything above.
+after that you need to choose any option that is currently on side bar. Then just fill those spaces with types of arguments that it says, int, str, bool, any. According to FiveM docs and everything above. To add current native to project, click "FINISH" down the Panel. In console you will find any debug info script found.
 
 ||Clear Project|| Deletes any info you had currently in table
 
