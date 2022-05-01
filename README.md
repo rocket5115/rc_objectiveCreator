@@ -10,6 +10,7 @@ This is not a final version! It will remain in this state for some time since I 
 Things that are +/- working:
 
 notification - p1 - str
+
 text - p1, p2 - str, int
 marker - up to 23p, all from docs except for material and p19, additionally: onButton(bool), Button(int)
 createnpc - p1, p2, p3, p4, p5, p6, p7 - str, int, int, int, int, bool, str
